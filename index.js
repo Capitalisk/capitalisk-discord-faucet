@@ -18,7 +18,7 @@ if (!ldposClient.validatePassphrase(PASSPHRASE)) {
   throw Error('Invalid passphrase');
 }
 
-// Create a new client instance
+// Discord client
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -29,11 +29,12 @@ const client = new Client({
   partials: [Partials.Channel],
 });
 
-// Login to Discord with your client's token
 client.login(DISCORD_TOKEN);
 
+// Keep track of cooldowns
 const cooldownClients = {};
 
+// Remove redundant cooldown clients
 setInterval(() => {
   Object.entries(cooldownClients).forEach(([key, date]) => {
     console.log(key, date);
@@ -44,12 +45,8 @@ setInterval(() => {
 }, 10000);
 
 const messageHandler = async (message) => {
-  console.log(message)
-
-  // Exit and stop if it's not there
   if (!message.content.startsWith(PREFIX) || message.author.bot) return;
 
-  // The back ticks are Template Literals introduced in Javascript in ES6 or ES2015, as an replacement for String Concatenation Read them up here https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
   if (message.content.startsWith(`${PREFIX}faucet`)) {
     if (message.channel.name === 'faucet') {
       const parts = message.content.split(' ');
@@ -110,4 +107,4 @@ const messageHandler = async (message) => {
 
 client.on('messageCreate', messageHandler);
 
-module.export = { messageHandler }
+module.export = { messageHandler };

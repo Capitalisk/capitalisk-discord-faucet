@@ -52,11 +52,11 @@ const messageHandler = async (message) => {
       const parts = message.content.split(' ');
       if (parts.length > 2) {
         message.channel.send(
-          'Command only accepts an address. Please use !faucet <address>.',
+          'Command only accepts one argument, an address. Please use `!faucet <address>`.',
         );
       } else if (parts.length < 2) {
         message.channel.send(
-          'Command needs an address. Please use !faucet <address>.',
+          'Command needs an address. Please use `!faucet <address>`.',
         );
       } else if (isBefore(new Date(), cooldownClients[message.author.id])) {
         message.channel.send(
@@ -72,7 +72,7 @@ const messageHandler = async (message) => {
           !ldpos.validateWalletAddress(SYMBOL.toLocaleLowerCase(), tokenAddress)
         ) {
           return message.channel.send(
-            `Invalid wallet address, try again using a valid format, e.g. ${SYMBOL.toLocaleLowerCase()}34ffa13f574ab888c5966de86eebf5f7871c5dd0.`,
+            `Invalid wallet address, try again using a valid format, e.g. \`${SYMBOL.toLocaleLowerCase()}34ffa13f574ab888c5966de86eebf5f7871c5dd0\`.`,
           );
         }
 
@@ -96,7 +96,7 @@ const messageHandler = async (message) => {
           );
           message.channel.send(`${AMOUNT} ${SYMBOL} sent to ${tokenAddress}`);
         } catch (e) {
-          message.channel.send(`Error occured ${e.message}.`);
+          message.channel.send(`Error occured \`${e.message}\`.`);
         } finally {
           ldposClient.disconnect();
         }

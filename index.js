@@ -37,8 +37,8 @@ const cooldownClients = {};
 // Remove redundant cooldown clients
 setInterval(() => {
   Object.entries(cooldownClients).forEach(([key, date]) => {
-    console.log(key, date);
-    if (isAfter(date, new Date())) {
+    if (isAfter(new Date(), date)) {
+      console.log(`Deleting cooldown client ${key}`);
       delete cooldownClients[key];
     }
   });
@@ -78,6 +78,8 @@ const messageHandler = async (message) => {
 
         try {
           await ldposClient.connect({ passphrase: PASSPHRASE });
+
+          console.log(`Sending 100${SYMBOL} to client ${tokenAddress}`);
 
           const preparedTxn = await ldposClient.prepareTransaction({
             type: 'transfer',

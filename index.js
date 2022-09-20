@@ -14,6 +14,8 @@ const {
   CONFIG,
 } = require('./config.json');
 
+Math.sum = (...a) => Array.prototype.reduce.call(a, (a, b) => a + b);
+
 const ldposClient = ldpos.createClient(CONFIG);
 
 if (!ldposClient.validatePassphrase(PASSPHRASE)) {
@@ -78,7 +80,9 @@ const sendTokens = async (tokenAddress, message, amount = AMOUNT) => {
 
     cooldownClients[message.author.id] = addDays(new Date(), COOLDOWN_DAYS);
     message.channel.send(
-      `🤑 ${parseInt(amount) / 100000000} ${SYMBOL} sent to ${tokenAddress}`,
+      `💰 **${
+        parseInt(amount) / 100000000
+      } ${SYMBOL} sent to ${tokenAddress}** 💰`,
     );
   } catch (e) {
     console.error(e);
@@ -161,12 +165,15 @@ const messageHandler = async (message) => {
   if (message.content.startsWith(`${PREFIX}price`)) {
     try {
       let quoteString = '**🚀 Price quotes 🚀**\n\n';
+      let inactiveQuotes = '';
+
+      const quotes = [];
 
       for (let i = 0; i < symbols.length; i++) {
         const s = symbols[i];
 
         if (s.inactive) {
-          quoteString += `💸 **CLSK/${s.short.toLocaleUpperCase()}**: Coming soon!\n`;
+          inactiveQuotes += `🚧 **${s.short.toLocaleUpperCase()}** market coming soon!\n`;
           continue;
         }
         // Get our value
@@ -181,20 +188,30 @@ const messageHandler = async (message) => {
           `https://coinmarketcap.com/currencies/${s.long}`,
         );
         const $ = cheerio.load(html);
-        const elementData = $('.priceValue > span')[0].children[0].data;
-        const secondQuote = parseFloat(elementData.split('$')[1]);
+        const elementData = $('.priceValue > span')[0];
 
-        console.log(dexQuote, secondQuote);
+        if (!elementData) {
+          return message.channel.send(
+            `🚧 **Market data is temporarily unavailable ** 🚧`,
+          );
+        }
 
-        quoteString += `💸 **CLSK/${s.short.toLocaleUpperCase()}**: $ ${
-          dexQuote * secondQuote
-        }\n`;
+        const secondQuote = parseFloat(
+          elementData.children[0].data.split('$')[1],
+        );
+
+        quotes.push(dexQuote * secondQuote);
+
+        quoteString += `✨ **${dexQuote} ${s.short.toLocaleUpperCase()}**\n`;
       }
+
+      quoteString += `💵 **${Math.sum(...quotes) / quotes.length} USD**`;
+      quoteString += `\n\n${inactiveQuotes}`;
 
       message.channel.send(quoteString);
     } catch (e) {
       console.error(e);
-      message.channel.send(`🐛 Error occured \`${e.message}\`.`);
+      message.channel.send(`🐛 **Error occured** \`${e.message}\` 🐛`);
     }
   }
 };
